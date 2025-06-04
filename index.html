@@ -6,17 +6,25 @@
   <title>Flappy Bird - Cloud Obstacle</title>
   <style>
     body {
-      margin: 0; padding: 0;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       background-color: #f0f0f0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+    }
+    .ad-container {
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      width: 100%;
     }
     #game-container {
       position: relative;
-      width: 400px; height: 600px;
+      width: 400px;
+      height: 600px;
       overflow: hidden;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
@@ -26,7 +34,8 @@
     }
     #bird {
       position: absolute;
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       background-image: url('https://iili.io/FJmBvj4.png');
       background-size: contain;
       background-repeat: no-repeat;
@@ -78,7 +87,8 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
     #play-btn {
-      width: 100px; height: 100px;
+      width: 100px;
+      height: 100px;
       background-image: url('https://iili.io/FJmznzG.png');
       background-size: contain;
       background-repeat: no-repeat;
@@ -114,6 +124,22 @@
   </style>
 </head>
 <body>
+
+  <!-- Top Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '0b66d63303f3f2115da5c868d54c4ef5',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/0b66d63303f3f2115da5c868d54c4ef5/invoke.js"></script>
+  </div>
+
+  <!-- Game Container -->
   <div id="game-container">
     <div id="bird"></div>
     <div id="high-score-display">High Score: 0</div>
@@ -135,6 +161,20 @@
     <audio id="bg-music" loop>
       <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_37d98b2e2f.mp3?filename=happy-ukulele-12632.mp3" type="audio/mpeg" />
     </audio>
+  </div>
+
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : 'e3c75f937b3e655a1ae22eff8e0fb6be',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/e3c75f937b3e655a1ae22eff8e0fb6be/invoke.js"></script>
   </div>
 
   <script>
