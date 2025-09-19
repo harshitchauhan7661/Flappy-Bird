@@ -6,36 +6,25 @@
   <title>Flappy Bird - Cloud Obstacle</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
       background-color: #f0f0f0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-    }
-    .ad-container {
-      margin: 10px 0;
-      display: flex;
-      justify-content: center;
-      width: 100%;
+      -webkit-tap-highlight-color: transparent;
     }
     #game-container {
       position: relative;
-      width: 400px;
-      height: 600px;
+      width: 100vw; height: 100vh;
       overflow: hidden;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
       background-image: url('https://iili.io/FdJJbCN.png');
       background-size: cover;
       background-position: center;
     }
     #bird {
       position: absolute;
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       background-image: url('https://iili.io/FJmBvj4.png');
       background-size: contain;
       background-repeat: no-repeat;
@@ -87,8 +76,7 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
     #play-btn {
-      width: 100px;
-      height: 100px;
+      width: 100px; height: 100px;
       background-image: url('https://iili.io/FJmznzG.png');
       background-size: contain;
       background-repeat: no-repeat;
@@ -96,20 +84,6 @@
       border: none;
       cursor: pointer;
       margin-top: 20px;
-    }
-    #pause-btn {
-      position: absolute;
-      top: 10px; right: 10px;
-      width: 40px; height: 40px;
-      background-image: url('https://iili.io/FJmT7ob.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-color: rgba(255,255,255,0.5);
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 50;
-      display: none;
     }
     #restart-btn {
       width: 80px; height: 80px;
@@ -121,25 +95,28 @@
       cursor: pointer;
       margin-top: 20px;
     }
+    #start-instruction {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    /* Instagram icon link style */
+    #instagram-link {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+      z-index: 60;
+      display: block;
+    }
   </style>
 </head>
 <body>
-
-  <!-- Top Ad -->
-  <div class="ad-container">
-    <script type="text/javascript">
-      atOptions = {
-        'key' : '0b66d63303f3f2115da5c868d54c4ef5',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/0b66d63303f3f2115da5c868d54c4ef5/invoke.js"></script>
-  </div>
-
-  <!-- Game Container -->
   <div id="game-container">
     <div id="bird"></div>
     <div id="high-score-display">High Score: 0</div>
@@ -154,27 +131,15 @@
     <div id="start-screen">
       <h1>Flappy Bird</h1>
       <button id="play-btn"></button>
+      <div id="start-instruction">Press Enter or Click Play</div>
     </div>
 
-    <button id="pause-btn"></button>
+    <!-- Instagram icon link -->
+    <a id="instagram-link" href="https://instagram.com/harshit.143__" target="_blank"></a>
 
     <audio id="bg-music" loop>
       <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_37d98b2e2f.mp3?filename=happy-ukulele-12632.mp3" type="audio/mpeg" />
     </audio>
-  </div>
-
-  <!-- Bottom Ad -->
-  <div class="ad-container">
-    <script type="text/javascript">
-      atOptions = {
-        'key' : 'e3c75f937b3e655a1ae22eff8e0fb6be',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/e3c75f937b3e655a1ae22eff8e0fb6be/invoke.js"></script>
   </div>
 
   <script>
@@ -190,7 +155,6 @@
     let score = 0;
     let highScore = localStorage.getItem('flappyBirdHighScore') || 0;
     let gameRunning = false;
-    let gamePaused = false;
     const clouds = [];
     const cloudImages = [
       "https://iili.io/FdJs2Gj.png"
@@ -204,17 +168,21 @@
     const finalScoreDisplay = document.getElementById("final-score");
     const startScreen = document.getElementById("start-screen");
     const playBtn = document.getElementById("play-btn");
-    const pauseBtn = document.getElementById("pause-btn");
     const restartBtn = document.getElementById("restart-btn");
     const bgMusic = document.getElementById("bg-music");
 
     function init() {
+      if (document.fullscreenEnabled) {
+        gameContainer.requestFullscreen().catch(err => {
+          console.log("Fullscreen error:", err);
+        });
+      }
       highScoreDisplay.textContent = `High Score: ${Math.floor(highScore)}`;
       document.addEventListener("keydown", handleKeyDown);
-      gameContainer.addEventListener("touchstart", () => jump(), { passive: false });
+      gameContainer.addEventListener("touchstart", handleTouch, { passive: false });
+      gameContainer.addEventListener("mousedown", handleMouseDown);
       playBtn.addEventListener("click", startGame);
       restartBtn.addEventListener("click", restartGame);
-      pauseBtn.addEventListener("click", togglePause);
       updateBirdPosition();
     }
 
@@ -222,8 +190,6 @@
       startScreen.style.display = "none";
       gameOverScreen.style.display = "none";
       gameRunning = true;
-      gamePaused = false;
-      pauseBtn.style.display = "block";
       score = 0;
       bird.y = 300;
       bird.velocity = 0;
@@ -234,12 +200,12 @@
     }
 
     function spawnCloud() {
-      if (!gameRunning || gamePaused) return;
+      if (!gameRunning) return;
       const cloud = document.createElement("div");
       cloud.className = "cloud";
       cloud.style.backgroundImage = `url('${cloudImages[Math.floor(Math.random() * cloudImages.length)]}')`;
-      cloud.style.top = `${Math.floor(Math.random() * 540)}px`;
-      cloud.style.left = "400px";
+      cloud.style.top = `${Math.floor(Math.random() * (gameContainer.clientHeight - 60))}px`;
+      cloud.style.left = `${gameContainer.clientWidth}px`;
       gameContainer.appendChild(cloud);
       clouds.push(cloud);
     }
@@ -264,7 +230,7 @@
     }
 
     function gameLoop() {
-      if (!gameRunning || gamePaused) return;
+      if (!gameRunning) return;
       updateBird();
       updateClouds();
       checkCollisions();
@@ -289,7 +255,7 @@
     }
 
     function checkCollisions() {
-      if (bird.y + bird.height > 600) {
+      if (bird.y + bird.height > gameContainer.clientHeight) {
         gameOver();
       }
     }
@@ -316,7 +282,6 @@
       }
       finalScoreDisplay.textContent = Math.floor(score);
       gameOverScreen.style.display = "block";
-      pauseBtn.style.display = "none";
     }
 
     function restartGame() {
@@ -324,30 +289,29 @@
       startGame();
     }
 
-    function togglePause() {
-      gamePaused = !gamePaused;
-      if (gamePaused) {
-        pauseBtn.style.backgroundImage = 'url("https://iili.io/FJmznzG.png")';
-        bgMusic.pause();
-      } else {
-        pauseBtn.style.backgroundImage = 'url("https://iili.io/FJmT7ob.png")';
-        bgMusic.play().catch(() => {});
-        gameLoop();
-      }
-    }
-
     function jump() {
-      if (gameRunning && !gamePaused) {
+      if (gameRunning) {
         bird.velocity = bird.jumpForce;
+      } else if (!gameRunning && startScreen.style.display !== "none") {
+        startGame();
       }
     }
 
     function handleKeyDown(e) {
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.code === "Enter" || e.key.toLowerCase() === "j" || e.key === "0") {
         e.preventDefault();
         jump();
-      } else if (e.key.toLowerCase() === "p") {
-        togglePause();
+      }
+    }
+
+    function handleTouch(e) {
+      e.preventDefault();
+      jump();
+    }
+
+    function handleMouseDown(e) {
+      if (e.button === 0) {
+        jump();
       }
     }
 
