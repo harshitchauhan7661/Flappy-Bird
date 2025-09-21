@@ -50,18 +50,28 @@
     }
     #high-score-display { top: 20px; }
     #score-display { top: 60px; }
+
+    /* Game Over screen transparent + blur */
     #game-over {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background-color: rgba(0,0,0,0.7);
+      background-color: rgba(0,0,0,0.3); /* transparent */
+      backdrop-filter: blur(5px); /* blur effect */
       color: white;
-      padding: 20px;
-      border-radius: 10px;
+      padding: 20px 40px;
+      border-radius: 15px;
       text-align: center;
       display: none;
       z-index: 30;
     }
+    #game-over-instruction {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
     #start-screen {
       position: absolute;
       top: 0; left: 0;
@@ -78,16 +88,6 @@
     #play-btn {
       width: 100px; height: 100px;
       background-image: url('https://iili.io/FJmznzG.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    #restart-btn {
-      width: 80px; height: 80px;
-      background-image: url('https://iili.io/FJmum2p.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-color: transparent;
@@ -125,17 +125,17 @@
     <div id="game-over">
       <h2>Game Over!</h2>
       <p>Your Score: <span id="final-score">0</span></p>
-      <button id="restart-btn"></button>
+      <p id="game-over-instruction">Tap Anywhere or Press Enter/Space</p>
     </div>
 
     <div id="start-screen">
       <h1>Flappy Bird</h1>
       <button id="play-btn"></button>
-      <div id="start-instruction">Press Enter or Click Play</div>
+      <div id="start-instruction">Tap Anywhere or Press Enter/Space</div>
     </div>
 
     <!-- Instagram icon link -->
-    <a id="instagram-link" href="https://instagram.com/harshit.143__" target="_blank"></a>
+    <a id="instagram-link" href="https://instagram.com/harshit.143__" target="_blank" rel="noopener noreferrer"></a>
 
     <audio id="bg-music" loop>
       <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_37d98b2e2f.mp3?filename=happy-ukulele-12632.mp3" type="audio/mpeg" />
@@ -143,23 +143,13 @@
   </div>
 
   <script>
-    const bird = {
-      x: 100,
-      y: 300,
-      width: 50,
-      height: 50,
-      velocity: 0,
-      gravity: 0.5,
-      jumpForce: -7
-    };
+    const bird = { x: 100, y: 300, width: 50, height: 50, velocity: 0, gravity: 0.4, jumpForce: -6 };
     let score = 0;
     let highScore = localStorage.getItem('flappyBirdHighScore') || 0;
     let gameRunning = false;
+    let cloudSpeed = 2.5;
     const clouds = [];
-    const cloudImages = [
-      "https://iili.io/FdJs2Gj.png"
-    ];
-
+    const cloudImages = ["https://iili.io/FdJs2Gj.png"];
     const gameContainer = document.getElementById("game-container");
     const birdElement = document.getElementById("bird");
     const scoreDisplay = document.getElementById("score-display");
@@ -168,21 +158,15 @@
     const finalScoreDisplay = document.getElementById("final-score");
     const startScreen = document.getElementById("start-screen");
     const playBtn = document.getElementById("play-btn");
-    const restartBtn = document.getElementById("restart-btn");
     const bgMusic = document.getElementById("bg-music");
+    let difficultyInterval;
 
     function init() {
-      if (document.fullscreenEnabled) {
-        gameContainer.requestFullscreen().catch(err => {
-          console.log("Fullscreen error:", err);
-        });
-      }
       highScoreDisplay.textContent = `High Score: ${Math.floor(highScore)}`;
       document.addEventListener("keydown", handleKeyDown);
       gameContainer.addEventListener("touchstart", handleTouch, { passive: false });
       gameContainer.addEventListener("mousedown", handleMouseDown);
-      playBtn.addEventListener("click", startGame);
-      restartBtn.addEventListener("click", restartGame);
+      playBtn.addEventListener("click", jump);
       updateBirdPosition();
     }
 
@@ -193,10 +177,19 @@
       score = 0;
       bird.y = 300;
       bird.velocity = 0;
+      bird.gravity = 0.4;
+      cloudSpeed = 2.5;
       bgMusic.play().catch(() => {});
       clearClouds();
       gameLoop();
       setInterval(spawnCloud, 2000);
+
+      difficultyInterval = setInterval(() => {
+        if (gameRunning) {
+          cloudSpeed += 0.3;
+          bird.gravity += 0.02;
+        }
+      }, 5000);
     }
 
     function spawnCloud() {
@@ -213,14 +206,12 @@
     function updateClouds() {
       clouds.forEach((cloud, index) => {
         const left = parseInt(cloud.style.left);
-        cloud.style.left = `${left - 3}px`;
+        cloud.style.left = `${left - cloudSpeed}px`;
         if (left < -60) {
           cloud.remove();
           clouds.splice(index, 1);
         }
-        if (isColliding(birdElement, cloud)) {
-          gameOver();
-        }
+        if (isColliding(birdElement, cloud)) gameOver();
       });
     }
 
@@ -242,10 +233,7 @@
     function updateBird() {
       bird.velocity += bird.gravity;
       bird.y += bird.velocity;
-      if (bird.y < 0) {
-        bird.y = 0;
-        bird.velocity = 0;
-      }
+      if (bird.y < 0) bird.y = 0, bird.velocity = 0;
       updateBirdPosition();
     }
 
@@ -255,26 +243,20 @@
     }
 
     function checkCollisions() {
-      if (bird.y + bird.height > gameContainer.clientHeight) {
-        gameOver();
-      }
+      if (bird.y + bird.height > gameContainer.clientHeight) gameOver();
     }
 
     function isColliding(a, b) {
       const rect1 = a.getBoundingClientRect();
       const rect2 = b.getBoundingClientRect();
-      return !(
-        rect1.top > rect2.bottom ||
-        rect1.bottom < rect2.top ||
-        rect1.right < rect2.left ||
-        rect1.left > rect2.right
-      );
+      return !(rect1.top > rect2.bottom || rect1.bottom < rect2.top || rect1.right < rect2.left || rect1.left > rect2.right);
     }
 
     function gameOver() {
       gameRunning = false;
       bgMusic.pause();
       bgMusic.currentTime = 0;
+      clearInterval(difficultyInterval);
       if (score > highScore) {
         highScore = score;
         localStorage.setItem("flappyBirdHighScore", highScore);
@@ -284,21 +266,16 @@
       gameOverScreen.style.display = "block";
     }
 
-    function restartGame() {
-      clearClouds();
-      startGame();
-    }
-
     function jump() {
       if (gameRunning) {
         bird.velocity = bird.jumpForce;
-      } else if (!gameRunning && startScreen.style.display !== "none") {
+      } else if (!gameRunning) {
         startGame();
       }
     }
 
     function handleKeyDown(e) {
-      if (e.code === "Space" || e.code === "Enter" || e.key.toLowerCase() === "j" || e.key === "0") {
+      if (["Space","Enter"].includes(e.code)) {
         e.preventDefault();
         jump();
       }
@@ -310,9 +287,7 @@
     }
 
     function handleMouseDown(e) {
-      if (e.button === 0) {
-        jump();
-      }
+      if (e.button === 0) jump();
     }
 
     window.onload = init;
