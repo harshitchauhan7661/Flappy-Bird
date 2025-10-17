@@ -25,7 +25,7 @@
     #bird {
       position: absolute;
       width: 50px; height: 50px;
-      background-image: url('https://iili.io/FJmBvj4.png');
+      background-image: url('https://iili.io/FJmBvj4.png'); /* Flappy Bird */
       background-size: contain;
       background-repeat: no-repeat;
       z-index: 10;
@@ -51,7 +51,6 @@
     #high-score-display { top: 20px; }
     #score-display { top: 60px; }
 
-    /* Game Over screen transparent + blur */
     #game-over {
       position: absolute;
       top: 50%; left: 50%;
@@ -100,19 +99,21 @@
       font-size: 18px;
     }
 
-    /* Instagram icon link style */
+    /* ✅ New Instagram photo style */
     #instagram-link {
       position: absolute;
       top: 10px;
       right: 10px;
-      width: 40px;
-      height: 40px;
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png');
+      width: 50px;
+      height: 50px;
+      background-image: url('https://image2url.com/images/1760695678629-1b56ec28-3e8d-4527-8316-996fc41f0cdf.jpg');
       background-size: cover;
-      background-repeat: no-repeat;
+      background-position: center;
       border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
       z-index: 60;
-      display: block;
     }
   </style>
 </head>
@@ -134,8 +135,8 @@
       <div id="start-instruction">Tap Anywhere or Press Enter/Space</div>
     </div>
 
-    <!-- Instagram icon link -->
-    <div id="instagram-link"></div>
+    <!-- ✅ Instagram image link -->
+    <div id="instagram-link" title="@harshit.143__"></div>
 
     <audio id="bg-music" loop>
       <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_37d98b2e2f.mp3?filename=happy-ukulele-12632.mp3" type="audio/mpeg" />
@@ -149,7 +150,7 @@
     let gameRunning = false;
     let cloudSpeed = 2.5;
     const clouds = [];
-    const cloudImages = ["https://iili.io/FdJs2Gj.png"];
+    const cloudImages = ["https://image2url.com/images/1760694951814-56e516bb-17fe-4f7d-bed3-b11829a9a036.png"];
     const gameContainer = document.getElementById("game-container");
     const birdElement = document.getElementById("bird");
     const scoreDisplay = document.getElementById("score-display");
@@ -168,13 +169,14 @@
       gameContainer.addEventListener("touchstart", handleTouch, { passive: false });
       gameContainer.addEventListener("mousedown", handleMouseDown);
       playBtn.addEventListener("click", jump);
-      updateBirdPosition();
 
-      // Instagram click handler
+      // ✅ Instagram link click
       instagramLink.addEventListener("click", (e) => {
         e.stopPropagation();
         window.open("https://instagram.com/harshit.143__", "_blank");
       });
+
+      updateBirdPosition();
     }
 
     function startGame() {
